@@ -1,0 +1,246 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+}
+.container{
+    height: 80px;
+    width: 100%;
+    background-color: black;
+    display: flex;
+    align-items: center;
+    padding-left: 40px;
+} 
+#logo{
+   font-size: 3rem;
+   color: white;
+}
+span{
+    color: yellow;
+}
+#navbar ul{
+    display: flex;  
+}
+#navbar ul li{
+    list-style-type: none;
+    display: flex;  
+}
+#navbar ul li a{
+    margin-left: 150px;
+    text-decoration: none;
+    font-size: 2rem;
+    color: white;
+}
+#navbar ul li a:hover{
+    color: pink;
+} 
+#navbar ul li a:active{
+    color: red;
+}
+#navbar ul li a:focus{
+    color: red;
+}
+:target{
+    color: red;
+}
+.background{
+    height: 700px;
+    width: 100%;
+    background-image: linear-gradient(rgba(0,0,0,0.3),rgba(0,0,0,0.3)),url(background.jpg);
+    background-size: cover;
+}
+.slogan{
+    position: relative;
+    top: 300px;
+    margin-left: 200px;
+}
+.slogan p{
+    color: white;
+    font-size: 4rem;
+    font-weight: 800;
+}
+.line{
+    height: 40px;
+    width: 100%;
+    background-color: black;
+}
+.imgbox{
+    height: 3000px;
+    width: 100%;    
+}
+.border{
+    height: fit-content;
+    border: 2px solid transparent;
+}
+.border:hover{
+    border: 4px solid black;
+}
+.row1 {
+    height: 1000px;
+    width: 100%;
+    background-color: white;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.centerbox{
+    height: 600px;
+    width: 650px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: white;
+    cursor: pointer;
+}
+.centerbox img{
+    height: 200px;
+    width: 200px;
+    border: 2px solid transparent;
+}
+.centerbox img:hover {
+    border: 2px solid black;
+    scale: 1.2;
+}
+.content{
+    height: 600px;
+    width: 650px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url(images/back1.jpg);
+    background-size: cover;
+    mix-blend-mode: multiply;
+}
+.content p{
+    font-size: 3rem;
+    color: black;
+    font-weight: bolder;
+    text-transform: uppercase;
+    z-index: 5;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+p span{
+    color: blue;
+} 
+@media only screen and(max-width: 600px){
+    .centerbox{
+        height: 400px;
+        width: 450px;
+    }
+    .content{
+        height: 400px;
+        width: 450px;
+    }
+    .centerbox img{
+        height: 50px;
+        width: 50px;
+    }
+}
+.row2{
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+    row-gap: 50px;
+}
+.row2 img{
+    height: 300px;
+    width: 300px;
+    border-radius: 20px;
+    cursor: pointer;
+   
+}
+.row2 img:hover {
+    border: 2px solid black;
+    scale: 1.1;
+}
+.row3{
+    height: 200px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: whitesmoke;
+}
+button{
+    height: 70px;
+    width: 300px;
+    border-radius: 20px;
+    font-size: 2rem;
+    color: blue;
+    box-shadow: 8px 8px 8px 0px rgba(0,0,255,0.2);
+    background-color: rgb(220, 247, 247);
+}
+.row3 button a{
+    text-decoration: none;
+}
+button:hover{
+    color: black;
+    box-shadow: 10px 10px 8px 0px rgba(0,0,255,0.2);
+    border: 2px solid black;
+    scale: 1.1;
+}
+footer{
+    height: 500px;
+    width: 100%;
+    background-color: black;
+    color: white;
+    font-size: 1.5rem;
+    line-height: 50px;
+    padding-top: 50px;
+    padding-left: 50px;
+}
+
+/* Download button styles */
+.download-btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background-color: rgba(0,0,0,0.6);
+    border: none;
+    border-radius: 50%;
+    padding: 4px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+.download-btn:hover {
+    opacity: 1;
+}
+
+.download-btn svg {
+    fill: white;
+    width: 14px;
+    height: 14px;
+}
+
+@media only screen and (max-width: 600px) {
+    .download-btn {
+        width: 14px;
+        height: 14px;
+        padding: 1px;
+        bottom: 3px;
+        right: 3px;
+    }
+    .download-btn svg {
+        width: 12px;
+        height: 12px;
+    }
+}
+
+
