@@ -1,66 +1,57 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const downloadIconSVG = `
-        <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" width="24px" height="24px">
-            <path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.67v6h4v-6h3.67L12 2z"/>
-        </svg>
-    `;
-
-    function createDownloadButton(img) {
-        const btn = document.createElement('button');
-        btn.classList.add('download-btn');
-        btn.style.width = '32px';
-        btn.style.height = '32px';
-        btn.style.padding = '4px';
-        btn.innerHTML = downloadIconSVG;
-        btn.title = 'Download Image';
-
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            const imageUrl = img.src;
-            const fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
-            fetch(imageUrl)
-                .then(response => response.blob())
-                .then(blob => {
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    a.remove();
-                })
-                .catch(() => alert('Failed to download image.'));
-        });
-
-        return btn;
-    }
-
-    function wrapImageWithContainer(img) {
-        if (!img.parentElement.classList.contains('img-container')) {
-            const wrapper = document.createElement('div');
-            wrapper.classList.add('img-container');
-            img.parentElement.insertBefore(wrapper, img);
-            wrapper.appendChild(img);
-            return wrapper;
+// Download button logic for generated and demo images
+function addDownloadButtons() {
+    // For demo gallery
+    document.querySelectorAll('.gallery div').forEach(div => {
+        if (!div.querySelector('.download-btn')) {
+            const img = div.querySelector('img');
+            const btn = document.createElement('button');
+            btn.className = 'download-btn';
+            btn.title = 'Download image';
+            btn.innerHTML = '<i class="fa-solid fa-download"></i>';
+            btn.onclick = e => {
+                e.stopPropagation();
+                downloadImage(img.src, img.alt || 'demo-image.jpg');
+            };
+            div.appendChild(btn);
         }
-        return img.parentElement;
-    }
+    });
+}
+function downloadImage(url, filename) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename || url.split('/').pop();
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+}
 
-    function addDownloadButtonsToImages(selector) {
-        const images = document.querySelectorAll(selector);
-        images.forEach(img => {
-            const container = wrapImageWithContainer(img);
-            if (!container.querySelector('.download-btn')) {
-                const downloadBtn = createDownloadButton(img);
-                container.appendChild(downloadBtn);
-                container.style.position = 'relative';
-            }
-        });
+// Handle AI form submission (demo only)
+document.getElementById('ai-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const prompt = document.getElementById('prompt').value.trim();
+    const output = document.getElementById('generated-image');
+    if (!prompt) {
+        output.innerHTML = '<p style="color:#ffbaba;">Please enter your idea!</p>';
+        return;
     }
-
-    addDownloadButtonsToImages('.centerbox div img');
-    addDownloadButtonsToImages('.row2 div img');
+    // Demo: Show a static image (replace with real AI API call)
+    output.innerHTML = `
+        <div class="generated-img-box">
+            <img src="images/Designer (22).jpeg" alt="Generated image">
+            <button class="download-btn" title="Download image">
+                <i class="fa-solid fa-download"></i>
+            </button>
+            <div style="margin-top:12px;font-size:1.1rem;color:#00e6d8;">
+                <i class="fa-solid fa-terminal"></i> <b>${prompt}</b>
+            </div>
+        </div>
+    `;
+    // Add download logic for generated image
+    const btn = output.querySelector('.download-btn');
+    const img = output.querySelector('img');
+    btn.onclick = e => {
+        e.stopPropagation();
+        downloadImage(img.src, 'generated-image.jpg');
+    };
 });
+addDownloadButtons();
