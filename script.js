@@ -42,29 +42,11 @@ document.getElementById('ai-form').addEventListener('submit', async function(e) 
             body: JSON.stringify({ prompt })
         });
         const data = await res.json();
-        output.innerHTML = `
-            <div class="generated-img-box">
-                <img src="${data.image_url}" alt="Generated image">
-                <button class="download-btn" title="Download image">
-                    <i class="fa-solid fa-download"></i>
-                </button>
-                <div style="margin-top:12px;font-size:1.1rem;color:#00e6d8;">
-                    <i class="fa-solid fa-terminal"></i> <b>${prompt}</b>
-                </div>
-            </div>
-        `;
-        // Add download logic for generated image
-        const btn = output.querySelector('.download-btn');
-        const img = output.querySelector('img');
-        btn.onclick = e => {
-            e.stopPropagation();
-            const a = document.createElement('a');
-            a.href = img.src;
-            a.download = 'generated-image.jpg';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-        };
+        if (data.image_url) {
+            output.innerHTML = `<img src="${data.image_url}" alt="Generated image" style="max-width:350px;">`;
+        } else {
+            output.innerHTML = '<p style="color:#ffbaba;">Failed to generate image.</p>';
+        }
     } catch (err) {
         output.innerHTML = '<p style="color:#ffbaba;">Failed to generate image.</p>';
     }
