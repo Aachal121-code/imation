@@ -215,34 +215,3 @@ footer {
         min-width: 0;
     }
 }
-
-/* Responsive styles for the navbar */
-
-@media (max-width: 700px) {
-    .header {
-        flex-direction: row;
-        gap: 10px;
-        padding: 18px 10px;
-    }
-    .header nav ul {
-        gap: 16px;
-    }
-    .header nav ul li a {
-        font-size: 0.98rem;
-        padding: 6px 0;
-    }
-    .logo {
-        font-size: 1.3rem;
-    }
-    .gallery img {
-        width: 120px;
-        height: 120px;
-    }
-    .generated-img-box img {
-        max-width: 90vw;
-    }
-    #ai-form input[type="text"] {
-        width: 90vw;
-        min-width: 0;
-    }
-}
