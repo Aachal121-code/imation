@@ -3,6 +3,7 @@ from flask_cors import CORS
 import os
 import random
 import torch
+from flask import url_for
 from diffusers import StableDiffusionPipeline
 
 app = Flask(__name__)
@@ -33,7 +34,7 @@ def generate_image():
     image_path = os.path.join(images_dir, filename)
     image.save(image_path)
 
-    return jsonify({'image_url': f'/images/{filename}'})
+    return jsonify({'image_url': url_for('serve_image', filename=filename, _external=True)})
 
 @app.route('/images/<path:filename>')
 def serve_image(filename):
