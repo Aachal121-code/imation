@@ -16,6 +16,7 @@ function addDownloadButtons() {
         }
     });
 }
+
 function downloadImage(url, filename) {
     const a = document.createElement('a');
     a.href = url;
@@ -25,30 +26,56 @@ function downloadImage(url, filename) {
     a.remove();
 }
 
-// Handle AI form submission (now async)
-document.getElementById('ai-form').addEventListener('submit', async function(e) {
+// Handle AI form submission
+document.getElementById('ai-form').addEventListener('submit', async function (e) {
     e.preventDefault();
     const prompt = document.getElementById('prompt').value.trim();
     const output = document.getElementById('generated-image');
+    const img = document.getElementById('ai-output-img');
+
     if (!prompt) {
-        output.innerHTML = '<p style="color:#ffbaba;">Please enter your idea!</p>';
+        showStatus('Please enter your idea!', '#ffbaba');
         return;
     }
-    output.innerHTML = '<p style="color:#00e6d8;">Generating image...</p>';
+
+    // Hide image while generating
+    img.style.display = 'none';
+    showStatus('Generating image...', '#00e6d8');
+
     try {
         const res = await fetch('http://127.0.0.1:5000/generate-image', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt })
         });
+
         const data = await res.json();
         if (data.image_url) {
-            output.innerHTML = `<img src="${data.image_url}" alt="Generated image" style="max-width:350px;">`;
+            img.src = data.image_url;
+            img.style.display = 'block';
+            removeStatus();
         } else {
-            output.innerHTML = '<p style="color:#ffbaba;">Failed to generate image.</p>';
+            showStatus('Failed to generate image.', '#ffbaba');
         }
     } catch (err) {
-        output.innerHTML = '<p style="color:#ffbaba;">Failed to generate image.</p>';
+        showStatus('Failed to generate image.', '#ffbaba');
     }
 });
+
+// Helper functions for status messages
+function showStatus(message, color) {
+    let status = document.getElementById('status-msg');
+    if (!status) {
+        status = document.createElement('p');
+        status.id = 'status-msg';
+        document.getElementById('generated-image').appendChild(status);
+    }
+    status.style.color = color;
+    status.textContent = message;
+}
+
+function removeStatus() {
+    document.getElementById('status-msg')?.remove();
+}
+
 addDownloadButtons();
