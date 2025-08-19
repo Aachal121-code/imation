@@ -16,6 +16,7 @@ function addDownloadButtons() {
         }
     });
 }
+
 function downloadImage(url, filename) {
     const a = document.createElement('a');
     a.href = url;
@@ -25,33 +26,56 @@ function downloadImage(url, filename) {
     a.remove();
 }
 
-// Handle AI form submission (demo only)
-document.getElementById('ai-form').addEventListener('submit', function(e) {
+// Handle AI form submission
+document.getElementById('ai-form').addEventListener('submit', async function (e) {
     e.preventDefault();
     const prompt = document.getElementById('prompt').value.trim();
     const output = document.getElementById('generated-image');
+    const img = document.getElementById('ai-output-img');
+
     if (!prompt) {
-        output.innerHTML = '<p style="color:#ffbaba;">Please enter your idea!</p>';
+        showStatus('Please enter your idea!', '#ffbaba');
         return;
     }
-    // Demo: Show a static image (replace with real AI API call)
-    output.innerHTML = `
-        <div class="generated-img-box">
-            <img src="images/Designer (22).jpeg" alt="Generated image">
-            <button class="download-btn" title="Download image">
-                <i class="fa-solid fa-download"></i>
-            </button>
-            <div style="margin-top:12px;font-size:1.1rem;color:#00e6d8;">
-                <i class="fa-solid fa-terminal"></i> <b>${prompt}</b>
-            </div>
-        </div>
-    `;
-    // Add download logic for generated image
-    const btn = output.querySelector('.download-btn');
-    const img = output.querySelector('img');
-    btn.onclick = e => {
-        e.stopPropagation();
-        downloadImage(img.src, 'generated-image.jpg');
-    };
+
+    // Hide image while generating
+    img.style.display = 'none';
+    showStatus('Generating image...', '#00e6d8');
+
+    try {
+        const res = await fetch('http://127.0.0.1:5000/generate-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+        });
+
+        const data = await res.json();
+        if (data.image_url) {
+            img.src = data.image_url;
+            img.style.display = 'block';
+            removeStatus();
+        } else {
+            showStatus('Failed to generate image.', '#ffbaba');
+        }
+    } catch (err) {
+        showStatus('Failed to generate image.', '#ffbaba');
+    }
 });
+
+// Helper functions for status messages
+function showStatus(message, color) {
+    let status = document.getElementById('status-msg');
+    if (!status) {
+        status = document.createElement('p');
+        status.id = 'status-msg';
+        document.getElementById('generated-image').appendChild(status);
+    }
+    status.style.color = color;
+    status.textContent = message;
+}
+
+function removeStatus() {
+    document.getElementById('status-msg')?.remove();
+}
+
 addDownloadButtons();
