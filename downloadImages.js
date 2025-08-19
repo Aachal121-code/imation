@@ -25,8 +25,8 @@ function downloadImage(url, filename) {
     a.remove();
 }
 
-// Handle AI form submission (now async)
-document.getElementById('ai-form').addEventListener('submit', async function(e) {
+// Handle AI form submission (demo only)
+document.getElementById('ai-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const prompt = document.getElementById('prompt').value.trim();
     const output = document.getElementById('generated-image');
@@ -34,21 +34,24 @@ document.getElementById('ai-form').addEventListener('submit', async function(e) 
         output.innerHTML = '<p style="color:#ffbaba;">Please enter your idea!</p>';
         return;
     }
-    output.innerHTML = '<p style="color:#00e6d8;">Generating image...</p>';
-    try {
-        const res = await fetch('http://127.0.0.1:5000/generate-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt })
-        });
-        const data = await res.json();
-        if (data.image_url) {
-            output.innerHTML = `<img src="${data.image_url}" alt="Generated image" style="max-width:350px;">`;
-        } else {
-            output.innerHTML = '<p style="color:#ffbaba;">Failed to generate image.</p>';
-        }
-    } catch (err) {
-        output.innerHTML = '<p style="color:#ffbaba;">Failed to generate image.</p>';
-    }
+    // Demo: Show a static image (replace with real AI API call)
+    output.innerHTML = `
+        <div class="generated-img-box">
+            <img src="images/Designer (22).jpeg" alt="Generated image">
+            <button class="download-btn" title="Download image">
+                <i class="fa-solid fa-download"></i>
+            </button>
+            <div style="margin-top:12px;font-size:1.1rem;color:#00e6d8;">
+                <i class="fa-solid fa-terminal"></i> <b>${prompt}</b>
+            </div>
+        </div>
+    `;
+    // Add download logic for generated image
+    const btn = output.querySelector('.download-btn');
+    const img = output.querySelector('img');
+    btn.onclick = e => {
+        e.stopPropagation();
+        downloadImage(img.src, 'generated-image.jpg');
+    };
 });
 addDownloadButtons();
