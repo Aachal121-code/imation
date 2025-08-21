@@ -1,3 +1,6 @@
+// Local storage for recent images
+let recentImages = [];
+
 // Download button logic for generated and demo images
 function addDownloadButtons() {
     // For demo gallery
@@ -26,42 +29,61 @@ function downloadImage(url, filename) {
     a.remove();
 }
 
-// Enhanced image loading with error handling
-function loadImageWithRetry(imgElement, url, maxRetries = 3) {
-    return new Promise((resolve, reject) => {
-        let attempts = 0;
-        
-        function attemptLoad() {
-            attempts++;
-            imgElement.onload = () => resolve();
-            imgElement.onerror = () => {
-                if (attempts < maxRetries) {
-                    setTimeout(attemptLoad, 1000 * attempts); // Exponential backoff
-                } else {
-                    reject(new Error('Failed to load image'));
-                }
-            };
-            imgElement.src = url;
-        }
-        
-        attemptLoad();
+// Function to add image to recent storage
+function addToRecent(imageUrl, prompt) {
+    recentImages.unshift({
+        url: imageUrl,
+        prompt: prompt,
+        timestamp: new Date().toLocaleString()
+    });
+    
+    // Keep only last 12 images
+    recentImages = recentImages.slice(0, 12);
+    
+    // Update recent images display
+    updateRecentImagesDisplay();
+}
+
+// Function to update recent images display
+function updateRecentImagesDisplay() {
+    const container = document.getElementById('recent-images');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (recentImages.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666;">No recent images yet. Generate your first image!</p>';
+        return;
+    }
+    
+    recentImages.forEach((image, index) => {
+        const div = document.createElement('div');
+        div.style.cssText = 'position: relative; overflow: hidden; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);';
+        div.innerHTML = `
+            <img src="${image.url}" alt="${image.prompt}" style="width: 100%; height: 200px; object-fit: cover;">
+            <div style="padding: 10px; background: rgba(0,0,0,0.7); color: white; position: absolute; bottom: 0; left: 0; right: 0;">
+                <p style="margin: 0; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${image.prompt}</p>
+                <button class="download-btn" title="Download image" onclick="downloadImage('${image.url}', 'generated-${index}.jpg')" style="position: absolute; top: 5px; right: 5px;">
+                    <i class="fa-solid fa-download"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(div);
     });
 }
 
-// Handle AI form submission with enhanced error handling
+// Handle AI form submission with permanent image display
 document.getElementById('ai-form').addEventListener('submit', async function (e) {
     e.preventDefault();
     const prompt = document.getElementById('prompt').value.trim();
     const output = document.getElementById('generated-image');
-    const img = document.getElementById('ai-output-img');
 
     if (!prompt) {
         showStatus('Please enter your idea!', '#ffbaba');
         return;
     }
 
-    // Hide image while generating
-    img.style.display = 'none';
+    // Show loading status
     showStatus('Generating image...', '#00e6d8');
 
     try {
@@ -78,38 +100,38 @@ document.getElementById('ai-form').addEventListener('submit', async function (e)
         const data = await res.json();
         
         if (data.image_url) {
-            // Create container for generated image
-            let container = output.querySelector('.generated-img-box');
+            // Create permanent image display container
+            let container = output.querySelector('.permanent-image-container');
             if (!container) {
                 container = document.createElement('div');
-                container.className = 'generated-img-box';
+                container.className = 'permanent-image-container';
+                container.style.cssText = 'position: relative; display: inline-block; margin: 20px 0;';
                 output.appendChild(container);
-                container.appendChild(img);
             }
 
-            // Load image with retry mechanism
-            try {
-                await loadImageWithRetry(img, data.image_url);
-                
-                // Ensure image stays visible
-                img.style.display = 'block';
-                img.style.visibility = 'visible';
-                img.style.opacity = '1';
-                
-                // Add download button
-                if (!container.querySelector('.download-btn')) {
-                    const btn = document.createElement('button');
-                    btn.className = 'download-btn';
-                    btn.title = 'Download image';
-                    btn.innerHTML = '<i class="fa-solid fa-download"></i>';
-                    btn.onclick = () => downloadImage(data.image_url, 'generated-image.jpg');
-                    container.appendChild(btn);
-                }
-                
-                removeStatus();
-            } catch (loadError) {
-                showStatus('Failed to load generated image. Please try again.', '#ffbaba');
-            }
+            // Create new image element
+            const newImg = document.createElement('img');
+            newImg.src = data.image_url;
+            newImg.alt = prompt;
+            newImg.style.cssText = 'max-width: 350px; width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: block;';
+            
+            // Clear previous image and add new one
+            container.innerHTML = '';
+            container.appendChild(newImg);
+            
+            // Add download button
+            const btn = document.createElement('button');
+            btn.className = 'download-btn';
+            btn.title = 'Download image';
+            btn.innerHTML = '<i class="fa-solid fa-download"></i>';
+            btn.style.cssText = 'position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; border: none; padding: 8px; border-radius: 50%; cursor: pointer;';
+            btn.onclick = () => downloadImage(data.image_url, 'generated-image.jpg');
+            container.appendChild(btn);
+            
+            // Add to recent images
+            addToRecent(data.image_url, prompt);
+            
+            removeStatus();
         } else {
             showStatus('Failed to generate image.', '#ffbaba');
         }
@@ -125,6 +147,7 @@ function showStatus(message, color) {
     if (!status) {
         status = document.createElement('p');
         status.id = 'status-msg';
+        status.style.cssText = 'text-align: center; margin: 10px 0; font-weight: bold;';
         document.getElementById('generated-image').appendChild(status);
     }
     status.style.color = color;
@@ -132,23 +155,14 @@ function showStatus(message, color) {
 }
 
 function removeStatus() {
-    document.getElementById('status-msg')?.remove();
-}
-
-// Prevent image from disappearing on error
-function preventImageDisappearance() {
-    const img = document.getElementById('ai-output-img');
-    if (img) {
-        img.addEventListener('error', function() {
-            console.error('Image failed to load:', this.src);
-            this.style.display = 'block'; // Keep it visible even on error
-            showStatus('Image failed to load. Please try again.', '#ffbaba');
-        });
+    const status = document.getElementById('status-msg');
+    if (status) {
+        status.remove();
     }
 }
 
 // Initialize everything
 document.addEventListener('DOMContentLoaded', function() {
-    preventImageDisappearance();
     addDownloadButtons();
+    updateRecentImagesDisplay();
 });
