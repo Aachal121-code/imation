@@ -129,14 +129,26 @@ body {
     color: #fff;
     font-size: 1.2rem;
 }
+.recent-gallery {
+    padding: 40px 20px 20px 20px;
+    text-align: center;
+}
+
+.recent-gallery h2 {
+    color: #00e6d8;
+    margin-bottom: 18px;
+}
+
 .demo-gallery {
     padding: 40px 20px 20px 20px;
     text-align: center;
 }
+
 .demo-gallery h2 {
     color: #00e6d8;
     margin-bottom: 18px;
 }
+
 .gallery {
     display: flex;
     flex-wrap: wrap;
