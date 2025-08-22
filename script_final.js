@@ -1,6 +1,28 @@
 // Local storage for recent images
 let recentImages = [];
 
+// Load recent images from localStorage on page load
+function loadRecentImages() {
+    try {
+        const saved = localStorage.getItem('recentImages');
+        if (saved) {
+            recentImages = JSON.parse(saved);
+        }
+    } catch (e) {
+        console.error('Error loading recent images from localStorage:', e);
+        recentImages = [];
+    }
+}
+
+// Save recent images to localStorage
+function saveRecentImages() {
+    try {
+        localStorage.setItem('recentImages', JSON.stringify(recentImages));
+    } catch (e) {
+        console.error('Error saving recent images to localStorage:', e);
+    }
+}
+
 // Download button logic for generated and demo images
 function addDownloadButtons() {
     // For demo gallery
@@ -39,6 +61,9 @@ function addToRecent(imageUrl, prompt) {
     
     // Keep only last 12 images
     recentImages = recentImages.slice(0, 12);
+    
+    // Save to localStorage
+    saveRecentImages();
     
     // Update recent images display
     updateRecentImagesDisplay();
@@ -161,8 +186,64 @@ function removeStatus() {
     }
 }
 
+// Function to clear all recent images
+function clearRecentImages() {
+    if (confirm('Are you sure you want to clear all recent images?')) {
+        recentImages = [];
+        saveRecentImages();
+        updateRecentImagesDisplay();
+    }
+}
+
+// Add clear button to recent images section
+function addClearButton() {
+    const recentSection = document.querySelector('.recent-gallery');
+    if (recentSection && !document.getElementById('clear-recent-btn')) {
+        const clearBtn = document.createElement('button');
+        clearBtn.id = 'clear-recent-btn';
+        clearBtn.textContent = 'Clear All';
+        clearBtn.style.cssText = 'background: #ff4757; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-left: 10px; font-size: 14px;';
+        clearBtn.onclick = clearRecentImages;
+        
+        const header = recentSection.querySelector('h2');
+        if (header) {
+            header.style.display = 'flex';
+            header.style.alignItems = 'center';
+            header.style.justifyContent = 'center';
+            header.style.gap = '10px';
+            header.appendChild(clearBtn);
+        }
+    }
+}
+
 // Initialize everything
 document.addEventListener('DOMContentLoaded', function() {
+    loadRecentImages();
     addDownloadButtons();
     updateRecentImagesDisplay();
+    addClearButton();
+    
+    // Check if server is running
+    checkServerStatus();
 });
+
+// Check if Flask server is running
+async function checkServerStatus() {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/health', { 
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Server not responding');
+        }
+        
+        const data = await response.json();
+        console.log('Server status:', data);
+        
+    } catch (error) {
+        console.warn('Flask server is not running. Please start the server with: python app_enhanced.py');
+        showStatus('Server not running. Please start the Flask server.', '#ffbaba');
+    }
+}
